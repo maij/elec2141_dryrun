@@ -1,6 +1,5 @@
-*.swp
-*.xmsgs
-*.cmd
-*.v
-*.vf
+isim/
+src/
+includes/
 *.prj
+*.wdb

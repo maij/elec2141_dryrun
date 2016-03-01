@@ -2,6 +2,7 @@
 import sys
 import os
 from glob import glob
+
 print(sys.version)
 
 print(
@@ -13,6 +14,17 @@ print(
 #    Written by Mark Johnson for the use of the UNSW School of Electrical Engineering.
     """
 )
+
+# Environment variables used during simulation
+env_vars = {
+    "XILINX"          : r"C:\Xilinx\14.4\ISE_DS\ISE",
+    "PLATFORM"        : r"nt",
+    "LD_LIBRARY_PATH" : r"%XILINX%\lib\%PLATFORM%",
+    "PATH"            : r"%PATH%;%XILINX%\lib\%PLATFORM%;%XILINX%\bin\%PLATFORM%",
+}
+for env in env_vars.keys():
+    print("{env} := {value}".format(env = env, value = env_vars[env]))
+    os.environ[env] = env_vars[env]
 
 project_files = glob("*.prj");
 print("Found Projects :")
@@ -29,7 +41,7 @@ tool_path = r"C:/Xilinx/14.4/ISE_DS/ISE/bin/nt64/"
 
 command_arguments = {
                     "fuse.exe" : '-intstyle ise -incremental -lib unisims_ver -lib unimacro_ver -lib xilinxcorelib_ver -o {output} -prj {prj} -top "work.{top_level}" -top "work.glbl"',
-                    "isim"     : '-intstyle ise -gui -tclbatch isim.cmd -wdb {top_level}.wdb'
+                    "isim"     : '-intstyle ise -tclbatch isim.cmd -wdb {top_level}.wdb'
                     }
 ordered_commands = ["fuse.exe"]
 
@@ -46,7 +58,7 @@ Compiling and elaborating all designs
 command = "fuse.exe"
 for prj_file in project_files:
     unit_name = prj_file.strip(".prj")
-    print("Processing project: " + unit_name + "\n")
+    print("\nProcessing project: " + unit_name + "\n")
 
     output_path = unit_name + "_isim.exe"
     print("Running " + tool_path + command + " " + command_arguments[command].format(prj = prj_file, output = output_path, top_level = unit_name))
@@ -65,7 +77,7 @@ print(
 command = "isim"
 for sim in glob("*_isim.exe"):
     unit_name = sim.strip(".exe")
-    print("Simulating project: " + unit_name + "\n")
+    print("\nSimulating project: " + unit_name + "\n")
 
     print("Running " + sim + " " + command_arguments[command].format(top_level = unit_name))
     os.system(         sim + " " + command_arguments[command].format(top_level = unit_name))
