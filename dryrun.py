@@ -5,7 +5,7 @@ from glob import glob
 
 # Just a simple "new line" function
 def nl():
-    print(None)
+    print("\n")
 
 def about_message():
     return \
@@ -83,6 +83,8 @@ command_arguments = {
                     "isim"     : '-intstyle ise -tclbatch isim.cmd -wdb {top_level}.wdb'
                     }
 ordered_commands = ["fuse.exe"]
+# A hash of projects, with their return codes to check for simulation
+compiled_projects = {}
 
 
 # Run fuse.exe first to compile and elaborate the design
@@ -96,10 +98,10 @@ Compiling and elaborating all designs
 )
 command = "fuse.exe"
 for prj_file in project_files:
-    #unit_name = prj_file.strip(".prj")
+    prj_name = prj_file.strip(".prj")
     unit_name = test_bench_file.strip(".v")
     nl()
-    print("Processing project: " + unit_name)
+    print("Processing project: " + prj_name)
     nl()
 
     print('Adding test bench "{tb_f}" to compile project file'.format(tb_f = test_bench_file))
@@ -108,7 +110,8 @@ for prj_file in project_files:
 
     output_path = unit_name + "_isim.exe"
     print("Running " + tool_path + command + " " + command_arguments[command].format(prj = prj_file, output = output_path, top_level = unit_name))
-    os.system(tool_path + command + " " + command_arguments[command].format(prj = prj_file, output = output_path, top_level = unit_name))
+    ret = os.system(   tool_path + command + " " + command_arguments[command].format(prj = prj_file, output = output_path, top_level = unit_name))
+    compiled_projects[prj_name] = ret;
         
 # Run each isim wrapper to simulate each design
 print(
@@ -121,8 +124,14 @@ print(
 )
 
 command = "isim"
-for sim in glob("*_isim.exe"):
-    unit_name = sim.strip(".exe")
+#for sim in glob("*_isim.exe"):
+for prj_file in sorted(project_files):
+    sim = prj_file.strip(".prj") + "_isim.exe"
+    prj_name  = prj_file.strip(".prj");
+    unit_name = test_bench_file.strip(".v")
+    if (compiled_projects[prj_name] != 0):
+        print('Skipping project "{prj}" due to bad compilation'.format(prj = prj_name))
+        continue
     nl()
     print("Simulating project: " + unit_name)
     nl()
