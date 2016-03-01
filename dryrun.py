@@ -15,18 +15,25 @@ print(
     """
 )
 
+# Just a simple "new line" function
+def nl():
+    print("")
+
 # Environment variables used during simulation
 env_vars = {
     "XILINX"          : r"C:\Xilinx\14.4\ISE_DS\ISE",
     "PLATFORM"        : r"nt",
     "LD_LIBRARY_PATH" : r"%XILINX%\lib\%PLATFORM%",
-    "PATH"            : r"%PATH%;%XILINX%\lib\%PLATFORM%;%XILINX%\bin\%PLATFORM%",
+    "PATH"            : os.environ["PATH"] + r";%XILINX%\lib\%PLATFORM%;%XILINX%\bin\%PLATFORM%",
 }
 for env in env_vars.keys():
-    print("{env} := {value}".format(env = env, value = env_vars[env]))
+    print("{env: <16} := {value}".format(env = env, value = env_vars[env]))
     os.environ[env] = env_vars[env]
+#for env in os.environ.keys():
+#    print("{env: <16} := {value}".format(env = env, value = os.environ[env]))
 
-project_files = glob("*.prj");
+project_files = glob("*.prj")
+nl()
 print("Found Projects :")
 for project in project_files:
     print("\t" + project)
@@ -58,7 +65,9 @@ Compiling and elaborating all designs
 command = "fuse.exe"
 for prj_file in project_files:
     unit_name = prj_file.strip(".prj")
-    print("\nProcessing project: " + unit_name + "\n")
+    nl()
+    print("Processing project: " + unit_name)
+    nl()
 
     output_path = unit_name + "_isim.exe"
     print("Running " + tool_path + command + " " + command_arguments[command].format(prj = prj_file, output = output_path, top_level = unit_name))
@@ -77,7 +86,9 @@ print(
 command = "isim"
 for sim in glob("*_isim.exe"):
     unit_name = sim.strip(".exe")
-    print("\nSimulating project: " + unit_name + "\n")
+    nl()
+    print("Simulating project: " + unit_name)
+    nl()
 
     print("Running " + sim + " " + command_arguments[command].format(top_level = unit_name))
     os.system(         sim + " " + command_arguments[command].format(top_level = unit_name))
