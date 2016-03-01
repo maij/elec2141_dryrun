@@ -4,3 +4,4 @@ includes/
 *.prj
 *.wdb
 *.pyc
+*.xmsgs
